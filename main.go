@@ -22,12 +22,10 @@ func main() {
 
 type Age interface {
 	ageCalculator(string, error)
-	monthToDays(string, error)
 }
 
 type Birth struct {
 	dateOfBirth string
-	days        Age
 }
 
 func (b Birth) ageCalculator() (string, error) {
@@ -39,51 +37,21 @@ func (b Birth) ageCalculator() (string, error) {
 	reversedInput := strings.Join(reverseInput, "-")
 
 	//converting input to valid format
-	date, err := time.Parse("2006-01-02 15 04", string(reversedInput))
+	date, err := time.Parse("2006-01-02", string(reversedInput))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("Invalid date format")
 	}
 
-	//geting age from year of birth up to now
-	age := time.Now().Year() - date.Year() - 1
-	// getting left month
-	// month := 0
-	if date.Day() == time.Now().Day() && date.Month() == time.Now().Month() {
+	// Geting age from year of birth up to now
+	age := time.Now().Year() - date.Year()
+
+	// Getting left days without leap
+	days := 0
+	if time.Now().YearDay()%365 == 0 {
 		age += 1
-	} else {
-
+	} else if time.Now().YearDay()%365 != 0 {
+		days = time.Now().YearDay()
 	}
 
-	return "", nil
-}
-
-func monthToDays(month string) int {
-	switch month {
-	case "1", "01", "Jan", "January":
-		return 31
-	case "2", "02", "Feb", "February":
-		return 28
-	case "3", "03", "Mar", "March":
-		return 31
-	case "4", "04", "Apr", "April":
-		return 30
-	case "5", "05", "May":
-		return 31
-	case "6", "06", "Jun", "June":
-		return 30
-	case "7", "07", "Jul", "July":
-		return 31
-	case "8", "08", "Aug", "August":
-		return 31
-	case "9", "09", "Sep", "September":
-		return 30
-	case "10", "Oct", "October":
-		return 31
-	case "11", "Nov", "November":
-		return 30
-	case "12", "Dec", "December":
-		return 31
-	default:
-		return 0
-	}
+	return "Age: " + fmt.Sprint(age) + " years " + fmt.Sprint(days) + " days", nil
 }
